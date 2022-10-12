@@ -1,0 +1,178 @@
+import { render, screen, waitFor } from "@testing-library/react";
+import RewardTable from "./RewardTable";
+
+const mockTrans = {
+  transactions: [
+    {
+      transactionId: "dbf1b230-3357-4ed2-a6d6-682ef1172f08",
+      userId: 5,
+      name: "David",
+      amount: 158,
+      date: 1656129600000,
+    },
+    {
+      transactionId: "f62e84b3-89ba-48a0-9460-41c8fba02575",
+      userId: 3,
+      name: "Jack",
+      amount: 97,
+      date: 1655784000000,
+    },
+    {
+      transactionId: "f42cba58-53dc-4ebd-b4fb-bd90e95bac72",
+      userId: 2,
+      name: "Chelsea",
+      amount: 85,
+      date: 1660276800000,
+    },
+    {
+      transactionId: "bfc47000-5694-40f0-bdac-d7e50054ff69",
+      userId: 1,
+      name: "Tom",
+      amount: 73,
+      date: 1656561600000,
+    },
+    {
+      transactionId: "42863c27-3468-4435-b5e4-0835890aed4e",
+      userId: 5,
+      name: "David",
+      amount: 140,
+      date: 1658462400000,
+    },
+    {
+      transactionId: "8debd242-5753-4490-b0ab-3003dd383cc4",
+      userId: 4,
+      name: "Lucy",
+      amount: 35,
+      date: 1660363200000,
+    },
+    {
+      transactionId: "0f89d009-87d8-4a69-a975-6a85f8b2c80f",
+      userId: 2,
+      name: "Chelsea",
+      amount: 99,
+      date: 1658721600000,
+    },
+    {
+      transactionId: "a133d19d-654e-4c5a-bdbe-0a061d010d79",
+      userId: 4,
+      name: "Lucy",
+      amount: 112,
+      date: 1654142400000,
+    },
+    {
+      transactionId: "ea4a6dcd-ea27-4a2f-8fb8-11df64210519",
+      userId: 2,
+      name: "Chelsea",
+      amount: 190,
+      date: 1656475200000,
+    },
+    {
+      transactionId: "486781d9-3a72-4e85-8b27-79a203dc2acd",
+      userId: 5,
+      name: "David",
+      amount: 158,
+      date: 1658808000000,
+    },
+    {
+      transactionId: "cc21b691-2cf7-4803-8809-0ab0767e9170",
+      userId: 3,
+      name: "Jack",
+      amount: 47,
+      date: 1657252800000,
+    },
+    {
+      transactionId: "634581b9-99a2-4405-a77d-46c1fc3bbe35",
+      userId: 4,
+      name: "Lucy",
+      amount: 175,
+      date: 1660017600000,
+    },
+    {
+      transactionId: "92b197b5-08cb-4842-b24c-d4de7f5e111e",
+      userId: 4,
+      name: "Lucy",
+      amount: 163,
+      date: 1655697600000,
+    },
+    {
+      transactionId: "6db28c4e-3928-45d3-a7bc-018b8c9436d5",
+      userId: 3,
+      name: "Jack",
+      amount: 83,
+      date: 1659412800000,
+    },
+    {
+      transactionId: "2398ac4a-7277-42cf-b5ca-672dc0cda740",
+      userId: 1,
+      name: "Tom",
+      amount: 153,
+      date: 1658808000000,
+    },
+    {
+      transactionId: "bfef36e8-1ab2-4e52-b428-e7ce03da4777",
+      userId: 3,
+      name: "Jack",
+      amount: 172,
+      date: 1659844800000,
+    },
+    {
+      transactionId: "732bee99-5bcc-4793-9941-c7832e73cdd0",
+      userId: 2,
+      name: "Chelsea",
+      amount: 166,
+      date: 1654747200000,
+    },
+  ],
+};
+
+describe("RewardTable test cases", () => {
+  beforeEach(() => {
+    jest.mock("../APIs/transactionsAPI", () => {
+      return {
+        transactionAPI: () =>
+          new Promise((res) => {
+            setTimeout(() => {
+              res(mockTrans);
+            }, 2000);
+          }),
+      };
+    });
+  });
+
+  test("snapshot test for RewardTable", () => {
+    const view = render(<RewardTable />);
+    expect(view.asFragment()).toMatchSnapshot();
+  });
+
+  test("RewardTable should display spinner and fetch data", async () => {
+    render(<RewardTable />);
+    const loading = screen.getByTestId("spinner");
+    expect(loading).toBeInTheDocument();
+
+    await waitFor(
+      async () => {
+        const head = await screen.findByText(/Customers Reward Table/i);
+        expect(head).toBeInTheDocument();
+
+        const table = await screen.findByRole("table");
+        expect(table).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
+  });
+
+  test("RewardTable should contain specified data", async () => {
+    render(<RewardTable />);
+
+    await waitFor(
+      async () => {
+        const jack = await screen.findByText(/jack/i);
+        expect(jack).toBeInTheDocument();
+
+        const point = await screen.findByText(/23/);
+        expect(point).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
+  });
+});
